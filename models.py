@@ -24,9 +24,6 @@ class ClusteringModel:
         return np.argmin(distances, axis=0)
 
     def silhouette_score(self, data):
-        if self.centroids is None or self.assignments is None:
-            raise ValueError("Model has not been fitted yet")
-        
         a = np.zeros(data.shape[0])
         for k in range(self.num_clusters):
             cluster = data[self.assignments == k]
