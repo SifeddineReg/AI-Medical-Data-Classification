@@ -43,3 +43,19 @@ class ClusteringModel:
 
         s = (b - a) / np.maximum(a, b)
         return np.mean(s)
+
+    def compute_representation(self, X):
+        return self.centroids
+
+
+class ClassificationModel:
+    def __init__(self, input_dim, output_dim):
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+
+    def train(self, X_train, y_train):
+        pass
+    def predict(self, X_test):
+        pass
+    def evaluate(self, X_test, y_test):
+        pass
