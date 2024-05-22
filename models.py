@@ -2,57 +2,70 @@ import numpy as np
 
 class ClusteringModel:
     def __init__(self, num_clusters):
+        """
+        Initialise le modèle de clustering avec un nombre spécifié de clusters.
+
+        :param num_clusters: (int) Le nombre de clusters à former lors du clustering.
+        """
         self.num_clusters = num_clusters
-        self.labels = None
-        self.assignments = None
+        self.labels = None  # Changed from list to None, will be initialized during fitting
 
     def fit(self, data):
+        """
+        Entraîne le modèle de clustering sur les données fournies.
+
+        :param data: (array-like) Les données sur lesquelles entraîner le modèle.
+                     Chaque ligne correspond à une observation et
+                     chaque colonne à une caractéristique.
+        """
         np.random.seed(42)
         random_idx = np.random.permutation(data.shape[0])
-        self.labels = data[random_idx[:self.num_clusters]]
+        centroids = data[random_idx[:self.num_clusters]]
         
         for _ in range(300):
-            distances = np.sqrt(((data - self.labels[:, np.newaxis])**2).sum(axis=2))
-            closest_cluster = np.argmin(distances, axis=0)
+            distances = np.sqrt(((data - centroids[:, np.newaxis])**2).sum(axis=2))
+            self.labels = np.argmin(distances, axis=0)
             
-            self.assignments = closest_cluster
-            
-            new_labels = np.array([data[closest_cluster == k].mean(axis=0) for k in range(self.num_clusters)])
-            if np.all(self.labels == new_labels):
+            new_centroids = np.array([data[self.labels == k].mean(axis=0) for k in range(self.num_clusters)])
+            if np.all(centroids == new_centroids):
                 break
-            self.labels = new_labels
+            centroids = new_centroids
 
     def predict(self, data):
-        distances = np.sqrt(((data - self.labels[:, np.newaxis])**2).sum(axis=2))
+        """
+        Prédit les clusters pour les nouvelles données en utilisant le modèle de clustering entraîné.
+
+        :param data: (array-like) Les nouvelles données pour lesquelles prédire les clusters.
+                     Chaque ligne correspond à une observation et chaque colonne à une caractéristique.
+        :return: (array-like) Les prédictions de clusters pour les nouvelles données.
+        """
+        if self.labels is None:
+            raise ValueError("The model has not been fitted yet.")
+        distances = np.sqrt(((data - centroids[:, np.newaxis])**2).sum(axis=2))
         return np.argmin(distances, axis=0)
 
     def silhouette_score(self, data):
-        if self.assignments is None:
-            raise ValueError("Model error")
-        
-        a = np.zeros(data.shape[0])
-        for k in range(self.num_clusters):
-            cluster = data[self.assignments == k]
-            for i in range(len(cluster)):
-                a[self.assignments == k][i] = np.mean(np.linalg.norm(cluster[i] - cluster, axis=1))
+        """
+        Évalue la performance du modèle de clustering en utilisant le Silhouette Score.
 
+        :param data: (array-like) Les données sur lesquelles calculer le Silhouette Score.
+        :return: (float) La valeur du Silhouette Score pour le modèle de clustering.
+        """
+        if self.labels is None:
+            raise ValueError("The model has not been fitted yet.")
+
+        a = np.zeros(data.shape[0])
         b = np.inf * np.ones(data.shape[0])
+
         for k in range(self.num_clusters):
-            cluster = data[self.assignments == k]
-            for j in range(self.num_clusters):
-                if k != j:
-                    other_cluster = data[self.assignments == j]
-                    for i in range(len(cluster)):
-                        dist = np.mean(np.linalg.norm(cluster[i] - other_cluster, axis=1))
-                        if dist < b[self.assignments == k][i]:
-                            b[self.assignments == k][i] = dist
+            cluster = data[self.labels == k]
+            for i in range(len(cluster)):
+                a[self.labels == k][i] = np.mean(np.linalg.norm(cluster[i] - cluster, axis=1))
+                other_clusters = [data[self.labels == j] for j in range(self.num_clusters) if j != k]
+                b[self.labels == k][i] = min(np.mean(np.linalg.norm(cluster[i] - other_cluster, axis=1)) for other_cluster in other_clusters)
 
         s = (b - a) / np.maximum(a, b)
         return np.mean(s)
-
-    def compute_representation(self, X):
-        return self.labels
-
 class ClassificationModel:
     def __init__(self, input_dim, output_dim):
         self.input_dim = input_dim
