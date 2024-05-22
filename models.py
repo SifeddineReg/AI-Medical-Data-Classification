@@ -1,5 +1,19 @@
 import numpy as np
 
+def kmeans_plus_plus_init(data, num_clusters):
+    np.random.seed(42)
+    centroids = [data[np.random.randint(data.shape[0])]]
+    for _ in range(1, num_clusters):
+        distances = np.array([min(np.linalg.norm(x-c) ** 2 for c in centroids) for x in data])
+        probabilities = distances / distances.sum()
+        cumulative_probabilities = probabilities.cumsum()
+        r = np.random.rand()
+        for i, p in enumerate(cumulative_probabilities):
+            if r < p:
+                centroids.append(data[i])
+                break
+    return np.array(centroids)
+
 class ClusteringModel:
     def __init__(self, num_clusters):
         """
@@ -8,6 +22,7 @@ class ClusteringModel:
         :param num_clusters: (int) Le nombre de clusters à former lors du clustering.
         """
         self.num_clusters = num_clusters
+        self.centroids = None
         self.labels = None
 
     def fit(self, data):
@@ -18,18 +33,14 @@ class ClusteringModel:
                      Chaque ligne correspond à une observation et
                      chaque colonne à une caractéristique.
         """
-        np.random.seed(42)
-        random_idx = np.random.permutation(data.shape[0])
-        centroids = data[random_idx[:self.num_clusters]]
-        
+        self.centroids = kmeans_plus_plus_init(data, self.num_clusters)
         for _ in range(300):
-            distances = np.sqrt(((data - centroids[:, np.newaxis])**2).sum(axis=2))
+            distances = np.sqrt(((data - self.centroids[:, np.newaxis])**2).sum(axis=2))
             self.labels = np.argmin(distances, axis=0)
-            
             new_centroids = np.array([data[self.labels == k].mean(axis=0) for k in range(self.num_clusters)])
-            if np.all(centroids == new_centroids):
+            if np.all(self.centroids == new_centroids):
                 break
-            centroids = new_centroids
+            self.centroids = new_centroids
 
     def predict(self, data):
         """
