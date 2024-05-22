@@ -41,7 +41,7 @@ class ClusteringModel:
         """
         if self.labels is None:
             raise ValueError("The model has not been fitted yet.")
-        distances = np.sqrt(((data - centroids[:, np.newaxis])**2).sum(axis=2))
+        distances = np.sqrt(((data - self.labels[:, np.newaxis])**2).sum(axis=2))
         return np.argmin(distances, axis=0)
 
     def silhouette_score(self, data):
@@ -68,12 +68,9 @@ class ClusteringModel:
         return np.mean(s)
 
     def compute_representation(self, X):
-        """
-        Computes a new representation of the data where each point is represented by its distance to each centroid.
-        """
-        if self.centroids is None:
+        if self.labels is None:
             raise ValueError("The model has not been fitted yet.")
-        distances = np.sqrt(((X - self.centroids[:, np.newaxis])**2).sum(axis=2))
+        distances = np.sqrt(((X - self.labels[:, np.newaxis])**2).sum(axis=2))
         return distances
 
 class ClassificationModel:
