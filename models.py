@@ -1,19 +1,5 @@
 import numpy as np
 
-def kmeans_plus_plus_init(data, num_clusters):
-    np.random.seed(42)
-    centroids = [data[np.random.randint(data.shape[0])]]
-    for _ in range(1, num_clusters):
-        distances = np.array([min(np.linalg.norm(x-c) ** 2 for c in centroids) for x in data])
-        probabilities = distances / distances.sum()
-        cumulative_probabilities = probabilities.cumsum()
-        r = np.random.rand()
-        for i, p in enumerate(cumulative_probabilities):
-            if r < p:
-                centroids.append(data[i])
-                break
-    return np.array(centroids)
-
 class ClusteringModel:
     def __init__(self, num_clusters):
         """
@@ -30,10 +16,22 @@ class ClusteringModel:
         Entraîne le modèle de clustering sur les données fournies.
 
         :param data: (array-like) Les données sur lesquelles entraîner le modèle.
-                     Chaque ligne correspond à une observation et
-                     chaque colonne à une caractéristique.
+        Chaque ligne correspond à une observation et
+        chaque colonne à une caractéristique.
         """
-        self.centroids = kmeans_plus_plus_init(data, self.num_clusters)
+        np.random.seed(42)
+        centr = [data[np.random.randint(data.shape[0])]]
+        for _ in range(1, self.num_clusters):
+            distances = np.array([min(np.linalg.norm(x-c) ** 2 for c in centr) for x in data])
+            probabilities = distances / distances.sum()
+            cumulative_probabilities = probabilities.cumsum()
+            r = np.random.rand()
+            for i, p in enumerate(cumulative_probabilities):
+                if r < p:
+                    centr.append(data[i])
+                    break
+        self.centroids = np.array(centr)
+
         for _ in range(300):
             distances = np.sqrt(((data - self.centroids[:, np.newaxis])**2).sum(axis=2))
             self.labels = np.argmin(distances, axis=0)
@@ -44,10 +42,12 @@ class ClusteringModel:
 
     def predict(self, data):
         """
-        Prédit les clusters pour les nouvelles données en utilisant le modèle de clustering entraîné.
+        Prédit les clusters pour les nouvelles données en utilisant
+        le modèle de clustering entraîné.
 
-        :param data: (array-like) Les nouvelles données pour lesquelles prédire les clusters.
-                     Chaque ligne correspond à une observation et chaque colonne à une caractéristique.
+        :param data: (array-like) Les nouvelles données pour lesquelles
+        prédire les clusters. Chaque ligne correspond à une observation
+        et chaque colonne à une caractéristique.
         :return: (array-like) Les prédictions de clusters pour les nouvelles données.
         """
         if self.labels is None:
