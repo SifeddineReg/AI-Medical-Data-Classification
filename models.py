@@ -22,9 +22,8 @@ class ClusteringModel:
         np.random.seed(30)
         centr = [data[np.random.randint(data.shape[0])]]
         for _ in range(1, self.num_clusters):
-            distances = np.array([min(np.linalg.norm(x-c) ** 2 for c in centr) for x in data])
-            probabilities = distances / distances.sum()
-            cumulative_probabilities = probabilities.cumsum()
+            dist = np.array([min(np.linalg.norm(x-c) ** 2 for c in centr) for x in data])
+            cumulative_probabilities = (dist / dist.sum()).cumsum()
             r = np.random.rand()
             for i, p in enumerate(cumulative_probabilities):
                 if r < p:
@@ -33,8 +32,7 @@ class ClusteringModel:
         self.centroids = np.array(centr)
 
         for _ in range(300):
-            distances = np.sqrt(((data - self.centroids[:, np.newaxis])**2).sum(axis=2))
-            self.labels = np.argmin(distances, axis=0)
+            self.labels = np.argmin(np.sqrt(((data - self.centroids[:, np.newaxis])**2).sum(axis=2)), axis=0)
             new_centroids = np.array([data[self.labels == k].mean(axis=0) for k in range(self.num_clusters)])
             if np.all(self.centroids == new_centroids):
                 break
@@ -52,8 +50,7 @@ class ClusteringModel:
         """
         if self.labels is None:
             raise ValueError("model is None")
-        distances = np.sqrt(((data - self.labels[:, np.newaxis])**2).sum(axis=2))
-        return np.argmin(distances, axis=0)
+        return np.argmin(np.sqrt(((data - self.labels[:, np.newaxis])**2).sum(axis=2)), axis=0)
 
     def silhouette_score(self, data):
         """
