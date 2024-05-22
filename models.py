@@ -79,10 +79,11 @@ class ClusteringModel:
         return np.mean(s)
 
     def compute_representation(self, X):
-        if self.labels is None:
+        if self.centroids is None:
             raise ValueError("The model is None")
-        distances = np.sqrt(((X - self.labels[:, np.newaxis])**2).sum(axis=2))
-        return np.min(distances, axis=0)
+        
+        distances = np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1))
+        return distances
 
 class ClassificationModel:
     def __init__(self, input_dim, output_dim):
