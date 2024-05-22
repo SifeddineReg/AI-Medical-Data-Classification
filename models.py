@@ -3,27 +3,27 @@ import numpy as np
 class ClusteringModel:
     def __init__(self, num_clusters):
         self.num_clusters = num_clusters
-        self.centroids = None
+        self.labels = []
         self.assignments = None
 
     def fit(self, data):
         np.random.seed(42)
         random_idx = np.random.permutation(data.shape[0])
-        self.centroids = data[random_idx[:self.num_clusters]]
+        self.labels = data[random_idx[:self.num_clusters]]
         
         for _ in range(300):
-            distances = np.sqrt(((data - self.centroids[:, np.newaxis])**2).sum(axis=2))
+            distances = np.sqrt(((data - self.labels[:, np.newaxis])**2).sum(axis=2))
             closest_cluster = np.argmin(distances, axis=0)
             
             self.assignments = closest_cluster
             
-            new_centroids = np.array([data[closest_cluster == k].mean(axis=0) for k in range(self.num_clusters)])
-            if np.all(self.centroids == new_centroids):
+            new_labels = np.array([data[closest_cluster == k].mean(axis=0) for k in range(self.num_clusters)])
+            if np.all(self.labels == new_labels):
                 break
-            self.centroids = new_centroids
+            self.labels = new_labels
 
     def predict(self, data):
-        distances = np.sqrt(((data - self.centroids[:, np.newaxis])**2).sum(axis=2))
+        distances = np.sqrt(((data - self.labels[:, np.newaxis])**2).sum(axis=2))
         return np.argmin(distances, axis=0)
 
     def silhouette_score(self, data):
@@ -51,7 +51,7 @@ class ClusteringModel:
         return np.mean(s)
 
     def compute_representation(self, X):
-        return self.centroids
+        return self.labels
 
 class ClassificationModel:
     def __init__(self, input_dim, output_dim):
