@@ -8,7 +8,7 @@ class ClusteringModel:
         :param num_clusters: (int) Le nombre de clusters à former lors du clustering.
         """
         self.num_clusters = num_clusters
-        self.labels = None  # Changed from list to None, will be initialized during fitting
+        self.labels = None
 
     def fit(self, data):
         """
@@ -52,7 +52,7 @@ class ClusteringModel:
         :return: (float) La valeur du Silhouette Score pour le modèle de clustering.
         """
         if self.labels is None:
-            raise ValueError("The model has not been fitted yet.")
+            raise ValueError("The model is None")
 
         a = np.zeros(data.shape[0])
         b = np.inf * np.ones(data.shape[0])
