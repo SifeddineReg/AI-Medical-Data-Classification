@@ -83,7 +83,7 @@ class ClusteringModel:
             raise ValueError("The model is None")
         
         distances = np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1))
-        return distances
+        return distances.reshape(-1, 1)
 
 class ClassificationModel:
     def __init__(self, input_dim, output_dim):
