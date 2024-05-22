@@ -4,6 +4,7 @@ class ClusteringModel:
     def __init__(self, num_clusters):
         self.num_clusters = num_clusters
         self.centroids = None
+        self.assignments = None
 
     def fit(self, data):
         np.random.seed(42)
@@ -13,6 +14,8 @@ class ClusteringModel:
         for _ in range(300):
             distances = np.sqrt(((data - self.centroids[:, np.newaxis])**2).sum(axis=2))
             closest_cluster = np.argmin(distances, axis=0)
+            
+            self.assignments = closest_cluster
             
             new_centroids = np.array([data[closest_cluster == k].mean(axis=0) for k in range(self.num_clusters)])
             if np.all(self.centroids == new_centroids):
@@ -24,6 +27,9 @@ class ClusteringModel:
         return np.argmin(distances, axis=0)
 
     def silhouette_score(self, data):
+        if self.assignments is None:
+            raise ValueError("Model error")
+        
         a = np.zeros(data.shape[0])
         for k in range(self.num_clusters):
             cluster = data[self.assignments == k]
@@ -46,7 +52,6 @@ class ClusteringModel:
 
     def compute_representation(self, X):
         return self.centroids
-
 
 class ClassificationModel:
     def __init__(self, input_dim, output_dim):
