@@ -3,7 +3,7 @@ import numpy as np
 class ClusteringModel:
     def __init__(self, num_clusters):
         self.num_clusters = num_clusters
-        self.labels = []
+        self.labels = None
         self.assignments = None
 
     def fit(self, data):
