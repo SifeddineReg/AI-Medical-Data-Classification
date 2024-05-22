@@ -69,9 +69,9 @@ class ClusteringModel:
 
     def compute_representation(self, X):
         if self.labels is None:
-            raise ValueError("The model has not been fitted yet.")
+            raise ValueError("The model is None")
         distances = np.sqrt(((X - self.labels[:, np.newaxis])**2).sum(axis=2))
-        return distances
+        return np.min(distances, axis=0)
 
 class ClassificationModel:
     def __init__(self, input_dim, output_dim):
