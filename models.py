@@ -8,8 +8,8 @@ class ClusteringModel:
         :param num_clusters: (int) Le nombre de clusters à former lors du clustering.
         """
         self.num_clusters = num_clusters
-        self.centroids = None
         self.labels = None
+        self.centroids = None
 
     def fit(self, data):
         """
@@ -19,7 +19,7 @@ class ClusteringModel:
         Chaque ligne correspond à une observation et
         chaque colonne à une caractéristique.
         """
-        np.random.seed(42)
+        np.random.seed(30)
         centr = [data[np.random.randint(data.shape[0])]]
         for _ in range(1, self.num_clusters):
             distances = np.array([min(np.linalg.norm(x-c) ** 2 for c in centr) for x in data])
@@ -51,7 +51,7 @@ class ClusteringModel:
         :return: (array-like) Les prédictions de clusters pour les nouvelles données.
         """
         if self.labels is None:
-            raise ValueError("The model has not been fitted yet.")
+            raise ValueError("model is None")
         distances = np.sqrt(((data - self.labels[:, np.newaxis])**2).sum(axis=2))
         return np.argmin(distances, axis=0)
 
@@ -63,7 +63,7 @@ class ClusteringModel:
         :return: (float) La valeur du Silhouette Score pour le modèle de clustering.
         """
         if self.labels is None:
-            raise ValueError("The model is None")
+            raise ValueError("model is None")
 
         a = np.zeros(data.shape[0])
         b = np.inf * np.ones(data.shape[0])
@@ -75,15 +75,13 @@ class ClusteringModel:
                 other_clusters = [data[self.labels == j] for j in range(self.num_clusters) if j != k]
                 b[self.labels == k][i] = min(np.mean(np.linalg.norm(cluster[i] - other_cluster, axis=1)) for other_cluster in other_clusters)
 
-        s = (b - a) / np.maximum(a, b)
-        return np.mean(s)
+        return np.mean((b - a) / np.maximum(a, b))
 
     def compute_representation(self, X):
         if self.centroids is None:
-            raise ValueError("The model is None")
+            raise ValueError("model is None")
         
-        distances = np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1))
-        return distances.reshape(-1, 1)
+        return np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1)).reshape(-1, 1)
 
 class ClassificationModel:
     def __init__(self, input_dim, output_dim):
