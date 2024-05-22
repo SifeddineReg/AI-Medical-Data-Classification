@@ -68,7 +68,13 @@ class ClusteringModel:
         return np.mean(s)
 
     def compute_representation(self, X):
-        return self.labels
+        """
+        Computes a new representation of the data where each point is represented by its distance to each centroid.
+        """
+        if self.centroids is None:
+            raise ValueError("The model has not been fitted yet.")
+        distances = np.sqrt(((X - self.centroids[:, np.newaxis])**2).sum(axis=2))
+        return distances
 
 class ClassificationModel:
     def __init__(self, input_dim, output_dim):
