@@ -66,6 +66,10 @@ class ClusteringModel:
 
         s = (b - a) / np.maximum(a, b)
         return np.mean(s)
+
+    def compute_representation(self, X):
+        return self.labels
+
 class ClassificationModel:
     def __init__(self, input_dim, output_dim):
         self.input_dim = input_dim
