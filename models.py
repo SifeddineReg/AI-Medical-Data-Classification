@@ -74,11 +74,22 @@ class ClusteringModel:
 
         return np.mean((b - a) / np.maximum(a, b))
 
-    def compute_representation(self, X):
-        if self.centroids is None:
-            raise ValueError("model is None")
+    # def compute_representation(self, X):
+    #     if self.centroids is None:
+    #         raise ValueError("model is None")
         
-        return np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1)).reshape(-1, 1)
+    #     return np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1)).reshape(-1, 1)
+
+    def compute_representation(self, X):
+        if self.centroids is None or self.labels is None:
+            raise ValueError("model is None")
+
+        representation = np.zeros((X.shape[0], 1))
+        for i in range(X.shape[0]):
+            centroid = self.centroids[self.labels[i]]
+            representation[i] = np.sqrt(np.sum((X[i] - centroid) ** 2))
+
+        return representation
     
 def euclidean_distance(x, y):
     return np.sqrt(np.sum((x - y) ** 2))
