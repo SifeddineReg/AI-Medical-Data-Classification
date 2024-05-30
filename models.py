@@ -38,8 +38,6 @@ class ClusteringModel:
                 break
             self.centroids = new_centroids
 
-        self.labels = np.clip(self.labels, 0, self.num_clusters - 1)
-
     def predict(self, data):
         """
         Prédit les clusters pour les nouvelles données en utilisant
@@ -50,9 +48,9 @@ class ClusteringModel:
         et chaque colonne à une caractéristique.
         :return: (array-like) Les prédictions de clusters pour les nouvelles données.
         """
-        if self.labels is None:
+        if self.centroids is None:
             raise ValueError("model is None")
-        return np.argmin(np.sqrt(((data - self.labels[:, np.newaxis])**2).sum(axis=2)), axis=0)
+        return np.argmin(np.sqrt(((data - self.centroids[:, np.newaxis])**2).sum(axis=2)), axis=0)
 
     def silhouette_score(self, data):
         """
@@ -76,23 +74,23 @@ class ClusteringModel:
 
         return np.mean((b - a) / np.maximum(a, b))
 
-    # def compute_representation(self, X):
-    #     if self.centroids is None:
-    #         raise ValueError("model is None")
-        
-    #     return np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1)).reshape(-1, 1)
-
     def compute_representation(self, X):
-        if self.centroids is None or self.labels is None:
+        """
+        Calcule la nouvelle représentation des points de données en utilisant
+        les distances euclidiennes aux centroïdes des clusters.
+
+        :param X: (array-like) Les données pour lesquelles calculer la représentation.
+        :return: (numpy.ndarray) La nouvelle représentation des données.
+        """
+        if self.centroids is None:
             raise ValueError("model is None")
+        
+        distances = np.zeros((X.shape[0], self.num_clusters))
+        for i, centroid in enumerate(self.centroids):
+            distances[:, i] = np.linalg.norm(X - centroid, axis=1)
+        
+        return distances
 
-        representation = np.zeros((X.shape[0], 1))
-        for i in range(X.shape[0]):
-            centroid = self.centroids[self.labels[i]]
-            representation[i] = np.sqrt(np.sum((X[i] - centroid) ** 2))
-
-        return representation
-    
 def euclidean_distance(x, y):
     return np.sqrt(np.sum((x - y) ** 2))
 
@@ -109,7 +107,7 @@ class Knn:
         for x in X:
             distances = [euclidean_distance(x, x_train) for x_train in self.X]
             k_indices = np.argsort(distances)[:self.k]
-            k_nearest_labels = [tuple(self.y[i]) for i in k_indices]
+            k_nearest_labels = [self.y[i] for i in k_indices]
             y_pred.append(max(set(k_nearest_labels), key=k_nearest_labels.count))
         return np.array(y_pred)
 
@@ -124,12 +122,12 @@ class Knn:
         recall = tp / (tp + fn)
         f1_score = 2 * (precision * recall) / (precision + recall)
         return {"precision": precision, "recall": recall, "f1-score": f1_score}
-    
+
 class ClassificationModel:
-    def __init__(self, input_dim, output_dim):
+    def __init__(self, input_dim, output_dim, num_clusters=5):
         self.input_dim = input_dim
         self.output_dim = output_dim
-        self.clustering_model = ClusteringModel(num_clusters=5)
+        self.data_clustering = ClusteringModel(num_clusters=num_clusters)
 
     def train(self, X_train, y_train):
         """ 
@@ -137,13 +135,11 @@ class ClassificationModel:
         :param X_train: (numpy.ndarray) Les données d'entraînement, de forme (n_samples, input_dim).
         :param y_train: (numpy.ndarray) Les étiquettes d'entraînement, de forme (n_samples, output_dim).
         """
+        self.data_clustering.fit(X_train)
+        X_train_tf = self.data_clustering.compute_representation(X_train)
 
-        self.clustering_model.fit(X_train)
-        X_train_transformed = self.clustering_model.compute_representation(X_train)    
-        
         self.model = Knn()
-        self.model.fit(X_train_transformed, y_train)
-        
+        self.model.fit(X_train_tf, y_train)
 
     def predict(self, X_test):
         """
@@ -154,9 +150,8 @@ class ClassificationModel:
         :return: (numpy.ndarray) Les prédictions du modèle,
         de forme (n_samples, output_dim).
         """
-
-        X_test_transformed = self.clustering_model.compute_representation(X_test)
-        return self.model.predict(X_test_transformed)
+        X_test_tf = self.data_clustering.compute_representation(X_test)
+        return self.model.predict(X_test_tf)
     
     def evaluate(self, X_test, y_test):
         """
@@ -170,6 +165,5 @@ class ClassificationModel:
         :return: (dict) Un dictionnaire contenant les métriques
         de classification calculées (precision, recall, f1-score)
         """
-
-        X_test_transformed = self.clustering_model.compute_representation(X_test)
-        return self.model.evaluate(X_test_transformed, y_test)
+        X_test_tf = self.data_clustering.compute_representation(X_test)
+        return self.model.evaluate(X_test_tf, y_test)
