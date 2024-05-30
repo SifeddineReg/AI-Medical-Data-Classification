@@ -38,8 +38,7 @@ class ClusteringModel:
                 break
             self.centroids = new_centroids
 
-        # Ensure labels are within the range of centroids
-        self.labels = self.labels % self.num_clusters
+        self.labels = np.clip(self.labels, 0, self.num_clusters - 1)
 
     def predict(self, data):
         """
