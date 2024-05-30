@@ -38,6 +38,9 @@ class ClusteringModel:
                 break
             self.centroids = new_centroids
 
+        # Ensure labels are within the range of centroids
+        self.labels = self.labels % self.num_clusters
+
     def predict(self, data):
         """
         Prédit les clusters pour les nouvelles données en utilisant
