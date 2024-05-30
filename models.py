@@ -125,9 +125,10 @@ class Knn:
         return {"precision": precision, "recall": recall, "f1-score": f1_score}
     
 class ClassificationModel:
-    def __init__(self, input_dim, output_dim):
+    def __init__(self, input_dim, output_dim, num_clusters=3):
         self.input_dim = input_dim
         self.output_dim = output_dim
+        self.clustering_model = ClusteringModel(num_clusters)
 
     def train(self, X_train, y_train):
         """ 
@@ -136,14 +137,10 @@ class ClassificationModel:
         :param y_train: (numpy.ndarray) Les étiquettes d'entraînement, de forme (n_samples, output_dim).
         """
 
-        self.model = Knn()
-        self.model.fit(X_train, y_train)
-
-        # Create an instance of ClusteringModel
-        self.clustering_model = ClusteringModel(num_clusters=3)  # You can adjust the number of clusters as needed
         self.clustering_model.fit(X_train)
-
         X_train_transformed = self.clustering_model.compute_representation(X_train)
+
+        self.model = Knn()
         self.model.fit(X_train_transformed, y_train)
 
     def predict(self, X_test):
@@ -156,7 +153,8 @@ class ClassificationModel:
         de forme (n_samples, output_dim).
         """
 
-        return self.model.predict(X_test)
+        X_test_transformed = self.clustering_model.compute_representation(X_test)
+        return self.model.predict(X_test_transformed)
     
     def evaluate(self, X_test, y_test):
         """
@@ -171,4 +169,5 @@ class ClassificationModel:
         de classification calculées (precision, recall, f1-score)
         """
 
-        return self.model.evaluate(X_test, y_test)
+        X_test_transformed = self.clustering_model.compute_representation(X_test)
+        return self.model.evaluate(X_test_transformed, y_test)
