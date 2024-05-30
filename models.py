@@ -125,10 +125,11 @@ class Knn:
         return {"precision": precision, "recall": recall, "f1-score": f1_score}
     
 class ClassificationModel:
-    def __init__(self, input_dim, output_dim, num_clusters=3):
+    def __init__(self, input_dim, output_dim, num_clusters=5, k=5):
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.clustering_model = ClusteringModel(num_clusters)
+        self.k = k
 
     def train(self, X_train, y_train):
         """ 
@@ -140,7 +141,7 @@ class ClassificationModel:
         self.clustering_model.fit(X_train)
         X_train_transformed = self.clustering_model.compute_representation(X_train)
 
-        self.model = Knn()
+        self.model = Knn(self.k)
         self.model.fit(X_train_transformed, y_train)
 
     def predict(self, X_test):
