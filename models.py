@@ -107,7 +107,7 @@ class Knn:
         for x in X:
             distances = [euclidean_distance(x, x_train) for x_train in self.X]
             k_indices = np.argsort(distances)[:self.k]
-            k_nearest_labels = [self.y[i] for i in k_indices]
+            k_nearest_labels = [tuple(self.y[i]) for i in k_indices]
             y_pred.append(max(set(k_nearest_labels), key=k_nearest_labels.count))
         return np.array(y_pred)
 
@@ -128,6 +128,7 @@ class ClassificationModel:
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.data_clustering = ClusteringModel(num_clusters=num_clusters)
+        self.model = None
 
     def train(self, X_train, y_train):
         """ 
@@ -150,6 +151,9 @@ class ClassificationModel:
         :return: (numpy.ndarray) Les prédictions du modèle,
         de forme (n_samples, output_dim).
         """
+        if self.model is None:
+            raise ValueError("Le modèle doit être entraîné avant de faire des prédictions.")
+        
         X_test_tf = self.data_clustering.compute_representation(X_test)
         return self.model.predict(X_test_tf)
     
@@ -165,5 +169,8 @@ class ClassificationModel:
         :return: (dict) Un dictionnaire contenant les métriques
         de classification calculées (precision, recall, f1-score)
         """
+        if self.model is None:
+            raise ValueError("Le modèle doit être entraîné avant de faire des prédictions.")
+
         X_test_tf = self.data_clustering.compute_representation(X_test)
         return self.model.evaluate(X_test_tf, y_test)
