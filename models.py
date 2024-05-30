@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
 
 class ClusteringModel:
     def __init__(self, num_clusters):
@@ -86,8 +87,38 @@ class ClassificationModel:
         self.output_dim = output_dim
 
     def train(self, X_train, y_train):
+        """ 
+        Entraîne le modèle de classification sur les données d'entraînement données.
+        :param X_train: (numpy.ndarray) Les données d'entraînement, de forme (n_samples, input_dim).
+        :param y_train: (numpy.ndarray) Les étiquettes d'entraînement, de forme (n_samples, output_dim).
         pass
+        """
+        self.model = KNeighborsClassifier(n_neighbors=3)
+        self.model.fit(X_train, y_train)
+
     def predict(self, X_test):
-        pass
+        """
+        Effectue une prédiction sur de nouvelles données à l'aide
+        du modèle de classification entraîné.
+        :param X_test: (numpy.ndarray) Les nouvelles données,
+        de forme (n_samples, input_dim).
+        :return: (numpy.ndarray) Les prédictions du modèle,
+        de forme (n_samples, output_dim).
+        """
+
+        return self.model.predict(X_test)
+    
     def evaluate(self, X_test, y_test):
-        pass
+        """
+        Évalue la performance du modèle de classification
+        sur les données de test données à l'aide
+        de métriques de classification.
+        :param X_test: (numpy.ndarray) Les données de test,
+        de forme (n_samples, input_dim).
+        :param y_test: (numpy.ndarray) Les étiquettes de test,
+        de forme (n_samples, output_dim).
+        :return: (dict) Un dictionnaire contenant les métriques
+        de classification calculées.
+        """
+
+        return self.model.score(X_test, y_test)
