@@ -1,5 +1,5 @@
 import numpy as np
-from knn import *
+from knn import knn, precision, recall, f1_score
 
 class ClusteringModel:
     def __init__(self, num_clusters):
@@ -92,7 +92,7 @@ class ClassificationModel:
         :param X_train: (numpy.ndarray) Les données d'entraînement, de forme (n_samples, input_dim).
         :param y_train: (numpy.ndarray) Les étiquettes d'entraînement, de forme (n_samples, output_dim).
         """
-        
+
         self.model = knn(X_train, y_train, X_train, 3)
 
     def predict(self, X_test):
