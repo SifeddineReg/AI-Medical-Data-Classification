@@ -138,7 +138,12 @@ class ClassificationModel:
 
         self.model = Knn()
         self.model.fit(X_train, y_train)
-        X_train_transformed = ClusteringModel.compute_representation(X_train)
+
+        # Create an instance of ClusteringModel
+        self.clustering_model = ClusteringModel(num_clusters=3)  # You can adjust the number of clusters as needed
+        self.clustering_model.fit(X_train)
+
+        X_train_transformed = self.clustering_model.compute_representation(X_train)
         self.model.fit(X_train_transformed, y_train)
 
     def predict(self, X_test):
