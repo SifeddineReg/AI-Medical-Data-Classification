@@ -1,5 +1,4 @@
 import numpy as np
-from knn import knn, precision, recall, f1_score
 
 class ClusteringModel:
     def __init__(self, num_clusters):
