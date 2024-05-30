@@ -92,26 +92,23 @@ class Knn:
         self.y = y
     
     def predict(self, X):
-        y_pred = [self._predict(x) for x in X]
+        y_pred = []
+        for x in X:
+            distances = [euclidean_distance(x, x_train) for x_train in self.X]
+            k_indices = np.argsort(distances)[:self.k]
+            k_nearest_labels = [tuple(self.y[i]) for i in k_indices]
+            y_pred.append(max(set(k_nearest_labels), key=k_nearest_labels.count))
         return np.array(y_pred)
-    
-    def _predict(self, x):
-        distances = [euclidean_distance(x, x_train) for x_train in self.X]
-        k_indices = np.argsort(distances)[:self.k]
-        k_nearest_labels = [self.y[i] for i in k_indices]
-        most_common = np.bincount(k_nearest_labels).argmax()
-        return most_common
-    
-    def precision(self, y_pred, y_true):
-        return 
 
     def evaluate(self, X_test, y_test):
+        # precision, recall, f1-score
         y_pred = self.predict(X_test)
-        true_pos = np.sum((y_pred == 1) & (y_test == 1))
-        false_pos = np.sum((y_pred == 1) & (y_test == 0))
-        false_neg = np.sum((y_pred == 0) & (y_test == 1))
-        precision = true_pos / (true_pos + false_pos)
-        recall = true_pos / (true_pos + false_neg)
+        tp = np.sum((y_pred == 1) & (y_test == 1))
+        tn = np.sum((y_pred == 0) & (y_test == 0))
+        fp = np.sum((y_pred == 1) & (y_test == 0))
+        fn = np.sum((y_pred == 0) & (y_test == 1))
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
         f1_score = 2 * (precision * recall) / (precision + recall)
         return {"precision": precision, "recall": recall, "f1-score": f1_score}
     
