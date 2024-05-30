@@ -80,26 +80,38 @@ class ClusteringModel:
         
         return np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1)).reshape(-1, 1)
     
-def euclidean_distance(x1, x2):
-    return np.sqrt(np.sum((x1 - x2) ** 2))
-        
-def predict(X_train, y_train, x_test, k):
-    distances = [[euclidean_distance(x, x_test), y] for x, y in zip(X_train, y_train)]
-    distances.sort(key=lambda x: x[0])
-    return np.argmax(np.bincount([y for _, y in distances[:k]]))
+def euclidean_distance(x, y):
+    return np.sqrt(np.sum((x - y) ** 2))
 
-def knn(X_train, y_train, X_test, k):
-    return [predict(X_train, y_train, x_test, k) for x_test in X_test]
+class Knn:
+    def __init__(self, k=3):
+        self.k = k
 
-def precision(y_true, y_pred):
-    return np.mean(y_true == y_pred)
+    def fit(self, X, y):
+        self.X = X
+        self.y = y
+    
+    def predict(self, X):
+        y_pred = []
+        for x in X:
+            distances = [euclidean_distance(x, x_train) for x_train in self.X]
+            k_indices = np.argsort(distances)[:self.k]
+            k_nearest_labels = [self.y[i] for i in k_indices]
+            y_pred.append(max(set(k_nearest_labels), key=k_nearest_labels.count))
+        return np.array(y_pred)
 
-def recall(y_true, y_pred):
-    return np.mean(y_true == y_pred)
-
-def f1_score(y_true, y_pred):
-    return 2 * precision(y_true, y_pred) * recall(y_true, y_pred) / (precision(y_true, y_pred) + recall(y_true, y_pred))
-
+    def evaluate(self, X_test, y_test):
+        # precision, recall, f1-score
+        y_pred = self.predict(X_test)
+        tp = np.sum((y_pred == 1) & (y_test == 1))
+        tn = np.sum((y_pred == 0) & (y_test == 0))
+        fp = np.sum((y_pred == 1) & (y_test == 0))
+        fn = np.sum((y_pred == 0) & (y_test == 1))
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+        f1_score = 2 * (precision * recall) / (precision + recall)
+        return {"precision": precision, "recall": recall, "f1-score": f1_score}
+    
 class ClassificationModel:
     def __init__(self, input_dim, output_dim):
         self.input_dim = input_dim
@@ -112,7 +124,8 @@ class ClassificationModel:
         :param y_train: (numpy.ndarray) Les étiquettes d'entraînement, de forme (n_samples, output_dim).
         """
 
-        self.model = knn(X_train, y_train, X_train, 3)
+        self.model = Knn()
+        self.model.fit(X_train, y_train)
 
     def predict(self, X_test):
         """
@@ -139,5 +152,4 @@ class ClassificationModel:
         de classification calculées (precision, recall, f1-score)
         """
 
-        y_pred = self.predict(X_test)
-        return {"precision": precision(y_test, y_pred), "recall": recall(y_test, y_pred), "f1-score": f1_score(y_test, y_pred)}
+        return self.model.evaluate(X_test, y_test)
