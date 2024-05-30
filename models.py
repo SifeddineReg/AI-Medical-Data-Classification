@@ -96,7 +96,7 @@ class Knn:
         for x in X:
             distances = [euclidean_distance(x, x_train) for x_train in self.X]
             k_indices = np.argsort(distances)[:self.k]
-            k_nearest_labels = [self.y[i] for i in k_indices]
+            k_nearest_labels = [tuple(self.y[i]) for i in k_indices]
             y_pred.append(max(set(k_nearest_labels), key=k_nearest_labels.count))
         return np.array(y_pred)
 
