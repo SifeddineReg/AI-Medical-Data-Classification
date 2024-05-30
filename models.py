@@ -79,18 +79,6 @@ class ClusteringModel:
             raise ValueError("model is None")
         
         return np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1)).reshape(-1, 1)
-
-    # def compute_representation(self, X):
-    #     distances = np.zeros((X.shape[0], self.centroids.shape[0]))
-    #     for i, x in enumerate(X):
-    #         for j, centroid in enumerate(self.centroids):
-    #             distances[i, j] = np.sqrt(np.sum((x - centroid) ** 2))
-
-    #     labels = np.argmin(distances, axis=1)
-
-    #     representation = np.sqrt(((X - self.centroids[labels]) ** 2).sum(axis=1)).reshape(-1, 1)
-
-    #     return representation
     
 def euclidean_distance(x, y):
     return np.sqrt(np.sum((x - y) ** 2))
@@ -125,11 +113,10 @@ class Knn:
         return {"precision": precision, "recall": recall, "f1-score": f1_score}
     
 class ClassificationModel:
-    def __init__(self, input_dim, output_dim, num_clusters=32, k=10):
+    def __init__(self, input_dim, output_dim):
         self.input_dim = input_dim
         self.output_dim = output_dim
-        self.clustering_model = ClusteringModel(num_clusters)
-        self.k = k
+        self.clustering_model = ClusteringModel(num_clusters=5)
 
     def train(self, X_train, y_train):
         """ 
@@ -139,10 +126,11 @@ class ClassificationModel:
         """
 
         self.clustering_model.fit(X_train)
-        X_train_transformed = self.clustering_model.compute_representation(X_train)
-
-        self.model = Knn(self.k)
+        X_train_transformed = self.clustering_model.compute_representation(X_train)    
+        
+        self.model = Knn()
         self.model.fit(X_train_transformed, y_train)
+        
 
     def predict(self, X_test):
         """
