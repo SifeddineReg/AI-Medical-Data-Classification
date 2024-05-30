@@ -74,11 +74,23 @@ class ClusteringModel:
 
         return np.mean((b - a) / np.maximum(a, b))
 
-    def compute_representation(self, X):
-        if self.centroids is None:
-            raise ValueError("model is None")
+    # def compute_representation(self, X):
+    #     if self.centroids is None:
+    #         raise ValueError("model is None")
         
-        return np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1)).reshape(-1, 1)
+    #     return np.sqrt(((X - self.centroids[self.labels]) ** 2).sum(axis=1)).reshape(-1, 1)
+
+    def compute_representation(self, X):
+        distances = np.zeros((X.shape[0], self.centroids.shape[0]))
+        for i, x in enumerate(X):
+            for j, centroid in enumerate(self.centroids):
+                distances[i, j] = np.sqrt(np.sum((x - centroid) ** 2))
+
+        labels = np.argmin(distances, axis=1)
+
+        representation = np.sqrt(((X - self.centroids[labels]) ** 2).sum(axis=1)).reshape(-1, 1)
+
+        return representation
     
 def euclidean_distance(x, y):
     return np.sqrt(np.sum((x - y) ** 2))
@@ -126,6 +138,8 @@ class ClassificationModel:
 
         self.model = Knn()
         self.model.fit(X_train, y_train)
+        X_train_transformed = self.model.compute_representation(X_train)
+        self.model.fit(X_train_transformed, y_train)
 
     def predict(self, X_test):
         """
