@@ -112,17 +112,7 @@ class Knn:
         return np.array(y_pred)
 
     def evaluate(self, X_test, y_test):
-        return True
-        # precision, recall, f1-score
-        # y_pred = self.predict(X_test)
-        # tp = np.sum((y_pred == 1) & (y_test == 1))
-        # # tn = np.sum((y_pred == 0) & (y_test == 0))
-        # fp = np.sum((y_pred == 1) & (y_test == 0))
-        # fn = np.sum((y_pred == 0) & (y_test == 1))
-        # precision = tp / (tp + fp)
-        # recall = tp / (tp + fn)
-        # f1_score = 2 * (precision * recall) / (precision + recall)
-        # return {"precision": precision, "recall": recall, "f1-score": f1_score}
+        pass
 
 class ClassificationModel:
     def __init__(self, input_dim, output_dim, num_clusters=5):
@@ -132,11 +122,6 @@ class ClassificationModel:
         self.model = None
 
     def train(self, X_train, y_train):
-        """ 
-        Entraîne le modèle de classification sur les données d'entraînement données.
-        :param X_train: (numpy.ndarray) Les données d'entraînement, de forme (n_samples, input_dim).
-        :param y_train: (numpy.ndarray) Les étiquettes d'entraînement, de forme (n_samples, output_dim).
-        """
         self.data_clustering.fit(X_train)
         X_train_tf = self.data_clustering.compute_representation(X_train)
 
@@ -144,14 +129,6 @@ class ClassificationModel:
         self.model.fit(X_train_tf, y_train)
 
     def predict(self, X_test):
-        """
-        Effectue une prédiction sur de nouvelles données à l'aide
-        du modèle de classification entraîné.
-        :param X_test: (numpy.ndarray) Les nouvelles données,
-        de forme (n_samples, input_dim).
-        :return: (numpy.ndarray) Les prédictions du modèle,
-        de forme (n_samples, output_dim).
-        """
         if self.model is None:
             raise ValueError("error")
         
@@ -159,20 +136,4 @@ class ClassificationModel:
         return self.model.predict(X_test_tf)
     
     def evaluate(self, X_test, y_test):
-        """
-        Évalue la performance du modèle de classification
-        sur les données de test données à l'aide
-        de métriques de classification.
-        :param X_test: (numpy.ndarray) Les données de test,
-        de forme (n_samples, input_dim).
-        :param y_test: (numpy.ndarray) Les étiquettes de test,
-        de forme (n_samples, output_dim).
-        :return: (dict) Un dictionnaire contenant les métriques
-        de classification calculées (precision, recall, f1-score)
-        """
-        return True
-        # if self.model is None:
-        #     raise ValueError("error")
-        #
-        # X_test_tf = self.data_clustering.compute_representation(X_test)
-        # return self.model.evaluate(X_test_tf, y_test)
+        pass
