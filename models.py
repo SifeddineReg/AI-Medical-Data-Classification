@@ -115,13 +115,13 @@ class Knn:
         # precision, recall, f1-score
         y_pred = self.predict(X_test)
         tp = np.sum((y_pred == 1) & (y_test == 1))
-        tn = np.sum((y_pred == 0) & (y_test == 0))
+        # tn = np.sum((y_pred == 0) & (y_test == 0))
         fp = np.sum((y_pred == 1) & (y_test == 0))
         fn = np.sum((y_pred == 0) & (y_test == 1))
         precision = tp / (tp + fp)
         recall = tp / (tp + fn)
         f1_score = 2 * (precision * recall) / (precision + recall)
-        return {"precision": precision, "recall": recall, "f1-score": f1_score}
+        # return {"precision": precision, "recall": recall, "f1-score": f1_score}
 
 class ClassificationModel:
     def __init__(self, input_dim, output_dim, num_clusters=5):
@@ -152,7 +152,7 @@ class ClassificationModel:
         de forme (n_samples, output_dim).
         """
         if self.model is None:
-            raise ValueError("Le modèle doit être entraîné avant de faire des prédictions.")
+            raise ValueError("error")
         
         X_test_tf = self.data_clustering.compute_representation(X_test)
         return self.model.predict(X_test_tf)
@@ -170,7 +170,7 @@ class ClassificationModel:
         de classification calculées (precision, recall, f1-score)
         """
         if self.model is None:
-            raise ValueError("Le modèle doit être entraîné avant de faire des prédictions.")
+            raise ValueError("error")
 
         X_test_tf = self.data_clustering.compute_representation(X_test)
         return self.model.evaluate(X_test_tf, y_test)
