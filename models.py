@@ -169,8 +169,8 @@ class ClassificationModel:
         :return: (dict) Un dictionnaire contenant les métriques
         de classification calculées (precision, recall, f1-score)
         """
-        # if self.model is None:
-        #     raise ValueError("error")
-        #
+        if self.model is None:
+            raise ValueError("error")
+
         # X_test_tf = self.data_clustering.compute_representation(X_test)
         # return self.model.evaluate(X_test_tf, y_test)
