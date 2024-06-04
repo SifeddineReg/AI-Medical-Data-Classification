@@ -151,11 +151,11 @@ class ClassificationModel:
         :return: (numpy.ndarray) Les prédictions du modèle,
         de forme (n_samples, output_dim).
         """
-        # if self.model is None:
-        #     raise ValueError("error")
-        # 
-        # X_test_tf = self.data_clustering.compute_representation(X_test)
-        # return self.model.predict(X_test_tf)
+        if self.model is None:
+            raise ValueError("error")
+        
+        X_test_tf = self.data_clustering.compute_representation(X_test)
+        return self.model.predict(X_test_tf)
     
     def evaluate(self, X_test, y_test):
         """
