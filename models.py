@@ -113,14 +113,14 @@ class Knn:
 
     def evaluate(self, X_test, y_test):
         # precision, recall, f1-score
-        y_pred = self.predict(X_test)
-        tp = np.sum((y_pred == 1) & (y_test == 1))
-        # tn = np.sum((y_pred == 0) & (y_test == 0))
-        fp = np.sum((y_pred == 1) & (y_test == 0))
-        fn = np.sum((y_pred == 0) & (y_test == 1))
-        precision = tp / (tp + fp)
-        recall = tp / (tp + fn)
-        f1_score = 2 * (precision * recall) / (precision + recall)
+        # y_pred = self.predict(X_test)
+        # tp = np.sum((y_pred == 1) & (y_test == 1))
+        # # tn = np.sum((y_pred == 0) & (y_test == 0))
+        # fp = np.sum((y_pred == 1) & (y_test == 0))
+        # fn = np.sum((y_pred == 0) & (y_test == 1))
+        # precision = tp / (tp + fp)
+        # recall = tp / (tp + fn)
+        # f1_score = 2 * (precision * recall) / (precision + recall)
         # return {"precision": precision, "recall": recall, "f1-score": f1_score}
 
 class ClassificationModel:
@@ -151,11 +151,11 @@ class ClassificationModel:
         :return: (numpy.ndarray) Les prédictions du modèle,
         de forme (n_samples, output_dim).
         """
-        if self.model is None:
-            raise ValueError("error")
-        
-        X_test_tf = self.data_clustering.compute_representation(X_test)
-        return self.model.predict(X_test_tf)
+        # if self.model is None:
+        #     raise ValueError("error")
+        # 
+        # X_test_tf = self.data_clustering.compute_representation(X_test)
+        # return self.model.predict(X_test_tf)
     
     def evaluate(self, X_test, y_test):
         """
@@ -169,8 +169,8 @@ class ClassificationModel:
         :return: (dict) Un dictionnaire contenant les métriques
         de classification calculées (precision, recall, f1-score)
         """
-        if self.model is None:
-            raise ValueError("error")
-
-        X_test_tf = self.data_clustering.compute_representation(X_test)
-        return self.model.evaluate(X_test_tf, y_test)
+        # if self.model is None:
+        #     raise ValueError("error")
+        #
+        # X_test_tf = self.data_clustering.compute_representation(X_test)
+        # return self.model.evaluate(X_test_tf, y_test)
